@@ -4,12 +4,14 @@ from re import Pattern
 
 from faststream.exceptions import SetupError
 
-PARAM_REGEX = re.compile(r"{([a-zA-Z0-9_]+)}")
+PARAM_REGEX = re.compile(r"{([a-zA-Z0-9_]+|tail\+)}")
+TAIL_PARAM = "tail+"
 
 
 def compile_path(
     path: str,
     replace_symbol: str,
+    tail_symbol: str = "",
     patch_regex: Callable[[str], str] = lambda x: x,
 ) -> tuple[Pattern[str] | None, str]:
     path_regex = "^.*?"
@@ -19,13 +21,17 @@ def compile_path(
     params = set()
     duplicated_params = set()
     for match in PARAM_REGEX.finditer(path):
-        param_name = match.groups("str")[0]
+        p = param_name = match.groups("str")[0]
+        after_match, repl_symbol = "[^.]", replace_symbol
+        if param_name == TAIL_PARAM and tail_symbol:
+            after_match = "."
+            repl_symbol = tail_symbol
 
         path_regex += re.escape(path[idx : match.start()])
-        path_regex += f"(?P<{param_name.replace('+', '')}>[^.]+)"
+        path_regex += f"(?P<{param_name.replace('+', '')}>{after_match}+)"
 
         original_path += path[idx : match.start()]
-        original_path += replace_symbol
+        original_path += repl_symbol
 
         if param_name in params:
             duplicated_params.add(param_name)

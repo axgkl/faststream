@@ -217,5 +217,6 @@ def compile_nats_wildcard(pattern: str) -> tuple[Optional["Pattern[str]"], str]:
     return compile_path(
         pattern,
         replace_symbol="*",
+        tail_symbol=">",
         patch_regex=lambda x: x.replace(".>", "..+"),
     )
