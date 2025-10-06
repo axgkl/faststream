@@ -16,6 +16,7 @@ ASYNCAPI_JS_DEFAULT_URL = (
 ASYNCAPI_CSS_DEFAULT_URL = (
     "https://unpkg.com/@asyncapi/react-component@2.6.4/styles/default.min.css"
 )
+import re
 
 
 def get_asyncapi_html(
@@ -32,8 +33,9 @@ def get_asyncapi_html(
     asyncapi_css_url: str = ASYNCAPI_CSS_DEFAULT_URL,
 ) -> str:
     """Generate HTML for displaying an AsyncAPI document."""
-    schema_json = schema.to_json()
-
+    s = schema.to_json()
+    s = s.replace("{tail+}", ".")
+    schema_json = re.sub(r"\.{([^}]+)}\.", r".(\1).", s)
     config = {
         "schema": schema_json,
         "config": {
