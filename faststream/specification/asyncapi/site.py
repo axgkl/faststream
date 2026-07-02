@@ -35,9 +35,9 @@ def get_asyncapi_html(
     """Generate HTML for displaying an AsyncAPI document."""
     s = schema.to_json()
     s = s.replace("{tail+}", ".")
-    schema_json = re.sub(r"\.{([^}]+)}\.", r".(\1).", s)
+    s = re.sub(r'([./"]){([^}]+)}\.', r"\1(\2).", s)
     config = {
-        "schema": schema_json,
+        "schema": s,
         "config": {
             "show": {
                 "sidebar": sidebar,
